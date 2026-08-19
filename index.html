@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>我在宋朝会出嫁吗 · 大宋婚恋模拟器</title>
+<link rel="icon" href="assets/icon.png">
 <!-- 小红书小工具规范：无内联脚本、无行内事件、无外部资源、纯离线自包含 -->
 <style>
 :root{
@@ -106,6 +107,13 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
 @keyframes drop{0%{transform:scale(.2);opacity:0}40%{transform:scale(1.1);opacity:1}100%{transform:scale(1.6);opacity:0}}
 .notice{font-size:.82em;color:var(--faint);text-align:center;margin-top:10px}
 .hint{font-size:.75em;color:var(--faint);text-align:center;margin-top:8px}
+/* 结局卡顶部大图（出嫁类结局专属）：宽撑满卡面，竖版图顶部居中对齐 */
+.end-art{width:100%;aspect-ratio:4/4.6;object-fit:cover;object-position:top center;display:block;border-radius:10px;border:1.5px solid var(--ink);margin:0 auto 10px;background:var(--wash)}
+/* 里程碑印章卡：立绘大图为主体，印章角标与天数压图 */
+.stamp-art{position:relative;width:100%;aspect-ratio:4/4.9;margin:8px 0 10px;border-radius:10px;overflow:hidden;border:1.5px solid var(--wash);background:var(--wash)}
+.stamp-art img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+.stamp-art .stamp-seal{position:absolute;top:10px;right:10px;background:var(--cinnabar);color:var(--paper);padding:6px 8px;border-radius:6px;font-size:.8em;letter-spacing:.1em;writing-mode:vertical-rl;transform:rotate(3deg);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.stamp-art .stamp-day{position:absolute;left:0;right:0;bottom:0;padding:30px 10px 8px;background:linear-gradient(180deg,rgba(250,248,245,0),rgba(250,248,245,.95) 60%);color:var(--gamboge);letter-spacing:.2em;font-size:.8em;text-align:center}
 </style>
 </head>
 <body>
@@ -173,6 +181,7 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
 
   <section class="screen" id="s-end">
     <div class="resultcard" id="end-card">
+      <img id="end-art" class="end-art" style="display:none" alt="结局图">
       <img id="end-portrait" style="width:30%;max-width:110px;border-radius:10px;border:2px solid var(--ink);transform:rotate(-2deg);margin:0 auto 8px;display:block" alt="角色立绘">
       <div class="stag" id="end-stag" style="color:var(--gamboge);letter-spacing:.25em;font-size:.75em"></div>
       <div class="big" id="end-emoji"></div>
@@ -207,10 +216,13 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
   <section class="screen" id="s-stamp">
     <div class="resultcard" id="stamp-card" style="padding:22px 18px">
       <div class="stag" style="color:var(--gamboge);letter-spacing:.25em;font-size:.72em">大宋婚恋 · 里程碑</div>
-      <div class="big" id="stamp-emoji" style="margin:6px 0"></div>
-      <h2 id="stamp-title"></h2>
-      <div class="days" id="stamp-days"></div>
-      <p class="hook" id="stamp-hook" style="font-size:.95em"></p>
+      <div class="stamp-art">
+        <img id="stamp-char" alt="角色立绘">
+        <span class="stamp-seal" id="stamp-seal"></span>
+        <span class="stamp-day" id="stamp-days"></span>
+      </div>
+      <h2 id="stamp-title" style="font-size:1.15em"></h2>
+      <p class="hook" id="stamp-hook" style="font-size:.82em;margin:8px 0"></p>
       <div class="rare" id="stamp-rare"></div>
       <div class="foot">我在宋朝会出嫁吗 · 你的人生由你写</div>
     </div>
