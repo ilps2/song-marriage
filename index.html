@@ -25,20 +25,19 @@ body{
   display:flex;align-items:center;justify-content:center;
   min-height:100vh;min-height:100dvh;
 }
-/* 中央 3:4 舞台：宽取 min(屏宽, 屏高×3/4, 480px)，垂直水平居中，内部滚动 */
+/* 中央 3:4 舞台：宽度驱动——宽=屏宽（桌面封顶 480px），高=宽×4/3；一屏全展示，禁止内部滚动 */
 #app{
-  width:min(100vw,75vh,480px);
-  width:min(100vw,75dvh,480px);
+  width:100vw;
+  max-width:480px;
   aspect-ratio:3/4;
-  max-height:100vh;max-height:100dvh;
   margin:auto;
-  padding:18px 20px calc(18px + env(safe-area-inset-bottom));
+  padding:14px 18px calc(14px + env(safe-area-inset-bottom));
   display:flex;flex-direction:column;
   background:var(--paper);
-  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  overflow:hidden;
   box-shadow:0 0 70px 34px rgba(250,248,245,.95);
 }
-.screen{display:none;flex:1;flex-direction:column;justify-content:flex-start;justify-content:safe center;animation:unroll .5s ease}
+.screen{display:none;flex:1;min-height:0;flex-direction:column;justify-content:flex-start;justify-content:safe center;transform-origin:top center;animation:unroll .5s ease}
 .screen.active{display:flex}
 @keyframes unroll{from{clip-path:inset(0 0 100% 0);opacity:.3}to{clip-path:inset(0 0 0 0);opacity:1}}
 h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margin:1dvh 0 4px;font-weight:700}
@@ -137,7 +136,7 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
   <section class="screen" id="s-skill">
     <div class="hud"><span>第二步 · 选两项傍身之技</span><b id="skill-count">0/2</b></div>
     <div class="scene"><p>穿越者唯一的优势，是脑子里的东西。选两样：</p></div>
-    <div id="skill-list" style="overflow-y:auto;max-height:52dvh"></div>
+    <div id="skill-list"></div>
     <button class="btn primary" id="skill-next" disabled>选好了</button>
   </section>
 
@@ -174,16 +173,16 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
 
   <section class="screen" id="s-end">
     <div class="resultcard" id="end-card">
-      <img id="end-portrait" style="width:38%;max-width:150px;border-radius:10px;border:2px solid var(--ink);transform:rotate(-2deg);margin:0 auto 10px;display:block" alt="角色立绘">
+      <img id="end-portrait" style="width:30%;max-width:110px;border-radius:10px;border:2px solid var(--ink);transform:rotate(-2deg);margin:0 auto 8px;display:block" alt="角色立绘">
       <div class="stag" id="end-stag" style="color:var(--gamboge);letter-spacing:.25em;font-size:.75em"></div>
       <div class="big" id="end-emoji"></div>
       <h2 id="end-title"></h2>
       <div class="days" id="end-days"></div>
       <div class="rare" id="end-rare"></div>
       <p class="hook" id="end-hook"></p>
-      <canvas id="end-radar" width="360" height="300" style="width:60%;max-width:220px;margin:8px auto;display:block"></canvas>
+      <canvas id="end-radar" width="360" height="300" style="width:46%;max-width:170px;margin:6px auto;display:block"></canvas>
       <div class="tagsline" id="end-tags"></div>
-      <div id="end-gallery" style="text-align:left;font-size:.8em;color:var(--charcoal);max-height:30dvh;overflow-y:auto"></div>
+      <div id="end-gallery" style="text-align:left;font-size:.8em;color:var(--charcoal)"></div>
       <p class="src" id="end-source" style="text-align:left"></p>
       <div class="foot">我在宋朝会出嫁吗 · 5 种身份 × 5 个维度，你是哪一种人生</div>
     </div>
@@ -235,5 +234,6 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
 <script src="./events-E.js?v=j2"></script>
 <script src="./events-C.js?v=j2"></script>
 <script src="./app.js?v=j2"></script>
+<script src="./fit.js?v=1"></script>
 </body>
 </html>
