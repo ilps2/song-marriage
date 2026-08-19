@@ -28,7 +28,7 @@ const CONFIG = {
   branches: {
     A:{name:"🌸 商户之女", data:"EVENTS_A", char:"assets/char-A.jpg", role:"有嫁妆有底气"},
     B:{name:"🏮 樊楼歌伎", data:"EVENTS_B", char:"assets/char-B.jpg", role:"才名满汴京"},
-    C:{name:"📚 李清照彩蛋", data:"EVENTS_C", char:"assets/char-C.jpg", role:"词名动京师"},
+    C:{name:"📚 官宦才女", data:"EVENTS_C", char:"assets/char-C.jpg", role:"词名动京师"},
     D:{name:"🍵 茶坊掌柜", data:"EVENTS_D", char:"assets/char-D.jpg", role:"自己能挣钱"},
     E:{name:"🌾 乡间孤女", data:"EVENTS_E", char:"assets/char-E.jpg", role:"全靠自己"}
   },
