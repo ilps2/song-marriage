@@ -473,7 +473,7 @@ const Engine = {
     document.getElementById("end-title").textContent=e.title;
     document.getElementById("end-days").textContent=`议婚 ${st.day} 天 · 你的人生活法`;
     document.getElementById("end-rare").textContent=e.rare;
-    const romance=(st.playerTags["感情"]||0)>=6;
+    const romance=st.branch==="C"&&(st.playerTags["感情"]||0)>=6;
     const hookText="「"+e.hook+(romance?ROMANCE_HOOK[key]:"")+"」";
     document.getElementById("end-hook").textContent=hookText;
     document.getElementById("end-source").textContent=e.source;
@@ -542,7 +542,7 @@ const Engine = {
     const g=cv.getContext("2d");
     const C={paper:"#FAF8F5",ink:"#1A1A1A",charcoal:"#4A4540",faint:"#8A8478",gamboge:"#C9A84C"};
     const SERIF='"Noto Serif SC","Songti SC",serif';
-    const romance=(st.playerTags["感情"]||0)>=6;
+    const romance=st.branch==="C"&&(st.playerTags["感情"]||0)>=6;
     const hook="「"+e.hook+(romance?ROMANCE_HOOK[endKey]:"")+"」";
     const img=art||portrait;
     g.textAlign="center";
