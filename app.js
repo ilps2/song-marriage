@@ -60,6 +60,62 @@ const ENDINGS = {
     source:"宋代闺誉即性命，一言可毁一门亲事。"}
 };
 
+/* 五线专属结局文案：只覆盖 title / hook，emoji/rare/source 沿用通用表兜底 */
+const BRANCH_ENDINGS = {
+  /* A 商户之女：彩帛铺账房 · 孙公子 · 蓝布账簿/心意账/乌木算盘 · 岁时行 · 灯笼「八月十六」 */
+  A:{
+    liangyuan:{title:"良缘 · 账里有你", hook:"八月十六的灯笼下，他把心意账翻到了最后一页。"},
+    zizai:   {title:"自在 · 自己当户", hook:"岁时行的账我自己记，我的日子也是。"},
+    jiangjiu:{title:"将就 · 合账过日子", hook:"嫁衣是铺里最好的彩帛，账却不是我想记的那本。"},
+    mingnv:  {title:"名女子 · 汴京第一账", hook:"全汴京的商铺都来请她看账，媒人倒不敢上门了。"},
+    wuji:    {title:"无疾 · 八月十六未至", hook:"灯笼年年挂，提灯的人没有来。"},
+    baolu:   {title:"失名 · 烂账一笔", hook:"谣言比流水账记得快，彩帛铺的名声一夜褪了色。"}
+  },
+  /* B 樊楼歌伎：琵琶自赎 · 填词书生 · 旧帕/《往来集》/琵琶 · 弦正馆 ·《满州桥雪》· 州桥年约 */
+  B:{
+    liangyuan:{title:"良缘 · 词外知音", hook:"他的词填到第三阕，我的琵琶先懂了。"},
+    zizai:   {title:"自在 · 弦正馆主", hook:"弦正馆的灯，比花轿亮。"},
+    jiangjiu:{title:"将就 · 嫁作商人妇", hook:"赎身的钱凑够了，赎不回州桥那场雪。"},
+    mingnv:  {title:"名女子 · 一曲满州桥雪", hook:"满城都唱《满州桥雪》，没人敢问她的婚事。"},
+    wuji:    {title:"无疾 · 年约空候", hook:"州桥年约，他来了一阕词，没有来一个人。"},
+    baolu:   {title:"失名 · 弦断", hook:"樊楼的嘴比琵琶快，一夜之间，没人再点她的曲。"}
+  },
+  /* C 官宦才女（李清照彩蛋）：金石 · 词 · 秋千架 */
+  C:{
+    liangyuan:{title:"良缘 · 千古知音", hook:"1101 年，汴京最聪明的女子出嫁了。"},
+    zizai:   {title:"自在 · 词自立身", hook:"不嫁。词比婚事长。"},
+    jiangjiu:{title:"将就 · 倚门另嫁", hook:"嫁了旁人。秋千架下那一眼，留在了词里。"},
+    mingnv:  {title:"名女子 · 词动京师", hook:"全汴京都读过她的词，没人敢娶她。"},
+    wuji:    {title:"无疾 · 秋千架空", hook:"秋千架空了三年，等的人没来。"},
+    baolu:   {title:"失名 · 闺誉尽毁", hook:"一句闲话，碎了她的闺誉，像失手跌裂的碑。"}
+  },
+  /* D 茶坊掌柜之女：点茶雅集 · 刻书匠之子 · 越窑青瓷盏/《青峰集》· 青峰书茶坊 · 茶烟能立骨 */
+  D:{
+    liangyuan:{title:"良缘 · 一盏知音", hook:"他刻完《青峰集》最后一页，来喝我点的第一盏茶。"},
+    zizai:   {title:"自在 · 茶烟立骨", hook:"青峰书茶坊的茶烟，能把一个女子的骨头立直。"},
+    jiangjiu:{title:"将就 · 另配他人", hook:"嫁了。越窑盏还温着，点茶的人换了。"},
+    mingnv:  {title:"名女子 · 点茶第一", hook:"汴京雅集以请到她点茶为荣，议亲却都绕着她走。"},
+    wuji:    {title:"无疾 · 茶凉", hook:"茶点了一盏又一盏，刻书铺的门没有为她开。"},
+    baolu:   {title:"失名 · 盏碎", hook:"青瓷盏碎了一只，名声碎了一地，拾不起来。"}
+  },
+  /* E 乡间孤女：三贯钱闯汴京 · 脚店厨子七郎 · 木梳/木勺 · 州桥汤记 · 提灯的人 */
+  E:{
+    liangyuan:{title:"良缘 · 汤记团圆", hook:"州桥汤记的灯亮了，提灯的是她，旁边站着七郎。"},
+    zizai:   {title:"自在 · 三贯自立", hook:"三贯钱闯出来的路，不必走进谁家的花轿。"},
+    jiangjiu:{title:"将就 · 木梳别嫁", hook:"嫁了。木梳收进箱底，木勺还握在手里。"},
+    mingnv:  {title:"名女子 · 汤记老板娘", hook:"州桥汤记一夜成名，提灯的她比灯还亮。"},
+    wuji:    {title:"无疾 · 灯未提来", hook:"说好提灯来的人，被生活绊在了路上。"},
+    baolu:   {title:"失名 · 汤冷", hook:"一句闲话传过州桥，汤记的热气散得比谁都快。"}
+  }
+};
+
+/* 按线取结局文案：该线有专属 title/hook 则覆盖，其余字段兜底到通用表 */
+function endText(key, branch){
+  const base=ENDINGS[key]||{};
+  const b=(BRANCH_ENDINGS[branch]&&BRANCH_ENDINGS[branch][key])||{};
+  return Object.assign({}, base, b);
+}
+
 const NOTE_PRESET = {
   title: "我在宋朝会出嫁吗",
   content: "穿越回1101年的汴京议婚季，我的宋朝人生结局是……5种身份5个维度，测测你会活成谁？",
@@ -77,9 +133,9 @@ const MILESTONES = [
 const ROMANCE_HOOK = {
   liangyuan:" 赌书泼茶二十六年，值得。",
   zizai:" 青梅那一眼，我不后悔。",
-  jiangjiu:" 心里那个人，就让他住在词里。",
+  jiangjiu:" 心里那个人，就让他住在词里吧。",
   mingnv:" 他托人捎来一句：你的词，我都读了。",
-  wuji:" 或许等的不是谁，是一个自己做主的机会。",
+  wuji:" 等的或许不是谁，是自己做主的机会。",
   baolu:" 到死都记得秋千架下那一眼。"
 };
 
@@ -397,7 +453,7 @@ const Engine = {
   end(key){
     const st=this.state; st.ended=key; this.save();
     if(key==="liangyuan" && !st._actsDone){ st._actsDone=true; this.save(); return this.playActs(()=>this.end(key)); }
-    const e=ENDINGS[key];
+    const e=endText(key, st.branch);
     UI.go("s-end");
     const art=document.getElementById("end-art");
     const portrait=document.getElementById("end-portrait");
@@ -480,7 +536,7 @@ const Engine = {
   /* 分享结局卡：3:4 海报式——大图满版铺底 + 底部墨渐变压字（结局名+判词+落款）。
      出嫁结局用婚嫁图，非出嫁结局用立绘；五维雷达图已撤出分享卡。 */
   drawEndCard(endKey, portrait, art){
-    const e=ENDINGS[endKey], st=this.state;
+    const e=endText(endKey, this.state.branch), st=this.state;
     const W=1080,H=1440,cv=document.createElement("canvas");
     cv.width=W; cv.height=H;
     const g=cv.getContext("2d");
@@ -710,7 +766,7 @@ const Engine = {
       list.appendChild(b);
     });
     if(st&&st.ended){
-      const e=ENDINGS[st.ended];
+      const e=endText(st.ended, st.branch);
       const b=UI.el("button","btn",`${e.emoji} 结局「${e.title}」 <small style="color:var(--stoneblue)">点我分享</small>`);
       b.addEventListener("click",()=>{ UI.go("s-end"); });
       list.appendChild(b);
