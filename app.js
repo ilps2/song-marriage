@@ -414,7 +414,6 @@ const Engine = {
       portrait.src=CONFIG.branches[st.branch].char;
     }
     document.getElementById("end-stag").textContent="建中靖国元年 · 春";
-    document.getElementById("end-emoji").textContent=e.emoji;
     document.getElementById("end-title").textContent=e.title;
     document.getElementById("end-days").textContent=`议婚 ${st.day} 天 · 你的人生活法`;
     document.getElementById("end-rare").textContent=e.rare;
@@ -423,7 +422,10 @@ const Engine = {
     document.getElementById("end-hook").textContent=hookText;
     document.getElementById("end-source").textContent=e.source;
     document.getElementById("share-hint").textContent="";
-    this.drawRadar(document.getElementById("end-radar"));
+    // 五维降级为一行小字汇总（雷达图已撤）
+    const d=st.playerDims;
+    document.getElementById("end-dims").textContent=
+      CONFIG.dims.map(k=>k+" "+(d[k]||0)).join(" · ");
     const tl=document.getElementById("end-tags"); tl.innerHTML="";
     this.persona().forEach(p=>tl.appendChild(UI.el("span","",p)));
     // 词句回收图鉴（彩蛋线结局后展示）
@@ -435,34 +437,6 @@ const Engine = {
         ys.forEach(ev=>gl.appendChild(UI.el("div","",`第${ev.day}天 · ${ev.shichen}：${ev.checkpoint}`)));
       }
     }
-  },
-
-  /* 五维雷达图（Canvas 2D，无依赖） */
-  drawRadar(cv){
-    const g=cv.getContext("2d"), W=cv.width, H=cv.height, cx=W/2, cy=H/2+8, R=Math.min(W,H)/2-38;
-    const dims=CONFIG.dims, d=this.state.playerDims;
-    const max=Math.max(8,...dims.map(k=>d[k]||0));
-    g.clearRect(0,0,W,H);
-    const pt=(i,r)=>{const a=-Math.PI/2+i*2*Math.PI/5; return [cx+Math.cos(a)*r, cy+Math.sin(a)*r];};
-    // 网格三层
-    g.strokeStyle="#E8E4DC"; g.lineWidth=1;
-    for(let lv=1;lv<=3;lv++){
-      g.beginPath();
-      for(let i=0;i<=5;i++){const[x,y]=pt(i%5,R*lv/3); i?g.lineTo(x,y):g.moveTo(x,y);}
-      g.stroke();
-    }
-    // 轴线+标签
-    g.fillStyle="#8A8478"; g.font="20px serif"; g.textAlign="center";
-    dims.forEach((k,i)=>{
-      const[x,y]=pt(i,R); g.beginPath(); g.moveTo(cx,cy); g.lineTo(x,y); g.stroke();
-      const[lx,ly]=pt(i,R+26); g.fillText(k,lx,ly+6);
-    });
-    // 数值多边形
-    g.beginPath();
-    dims.forEach((k,i)=>{const[x,y]=pt(i,R*(d[k]||0)/max); i?g.lineTo(x,y):g.moveTo(x,y);});
-    g.closePath();
-    g.fillStyle="rgba(181,84,74,.18)"; g.fill();
-    g.strokeStyle="#B5544A"; g.lineWidth=2; g.stroke();
   },
 
   /* 三幕揭晓（彩蛋覆盖层） */
@@ -503,149 +477,75 @@ const Engine = {
     return p;
   },
 
-  drawEndCard(endKey, banner, portrait, art){
+  /* 分享结局卡：3:4 海报式——大图满版铺底 + 底部墨渐变压字（结局名+判词+落款）。
+     出嫁结局用婚嫁图，非出嫁结局用立绘；五维雷达图已撤出分享卡。 */
+  drawEndCard(endKey, portrait, art){
     const e=ENDINGS[endKey], st=this.state;
     const W=1080,H=1440,cv=document.createElement("canvas");
     cv.width=W; cv.height=H;
     const g=cv.getContext("2d");
-    const C={paper:"#FAF8F5",ink:"#1A1A1A",charcoal:"#4A4540",faint:"#8A8478",cinnabar:"#B5544A",gamboge:"#C9A84C",stoneblue:"#5A7A8A",wash:"#E8E4DC"};
+    const C={paper:"#FAF8F5",ink:"#1A1A1A",charcoal:"#4A4540",faint:"#8A8478",gamboge:"#C9A84C"};
     const SERIF='"Noto Serif SC","Songti SC",serif';
-    // 底色
-    g.fillStyle=endKey==="yuanman"?"#FBF6EA":endKey==="baolu"?"#F3F0EA":C.paper;
-    g.fillRect(0,0,W,H);
-    // 双线框
-    g.strokeStyle=C.ink; g.lineWidth=5; g.strokeRect(44,44,W-88,H-88);
-    g.strokeStyle=C.faint; g.lineWidth=2; g.strokeRect(58,58,W-116,H-116);
-    // 顶部
-    g.fillStyle=C.faint; g.font=`38px ${SERIF}`; g.textAlign="left";
-    g.fillText("我在宋朝会出嫁吗",100,140);
-    g.fillStyle=C.gamboge; g.textAlign="right";
-    g.fillText("建中靖国元年 · 春",W-100,140);
-    // 结局大图（出嫁类结局）：顶部横幅竖版图，cover 顶部对齐
-    let yCursor;
-    if(art){
-      const ax=100, ay=180, aw=W-200, ah=430;
-      const ir=art.width/art.height, tr=aw/ah;
-      let sw,sh,sx,sy;
-      if(ir>tr){ sh=art.height; sw=sh*tr; sx=(art.width-sw)/2; sy=0; }
-      else{ sw=art.width; sh=sw/tr; sx=0; sy=0; }
-      g.save();
-      roundRect(g,ax,ay,aw,ah,16); g.clip();
-      g.drawImage(art,sx,sy,sw,sh,ax,ay,aw,ah);
-      g.restore();
-      g.strokeStyle=C.ink; g.lineWidth=3;
-      roundRect(g,ax,ay,aw,ah,16); g.stroke();
-      // 标题区（紧凑居中）
-      g.textAlign="center";
-      g.font="70px serif"; g.fillText(e.emoji,W/2,690);
-      g.fillStyle=C.ink; g.font=`700 84px ${SERIF}`;
-      g.fillText(e.title,W/2,792);
-      g.fillStyle=C.charcoal; g.font=`38px ${SERIF}`;
-      g.fillText(`议婚 ${st.day} 天`,W/2,850);
-      g.fillStyle=C.faint; g.font=`26px ${SERIF}`;
-      g.fillText(e.rare,W/2,892);
-      yCursor=912;
-    }else if(portrait){
-      // 角色立绘卡（3:4，微倾斜，墨线描边）
-      const px=110,py=190,pw=240,ph=320;
-      const ir=portrait.width/portrait.height, tr=pw/ph;
-      let sw,sh,sx,sy;
-      if(ir>tr){ sh=portrait.height; sw=sh*tr; sx=(portrait.width-sw)/2; sy=0; }
-      else{ sw=portrait.width; sh=sw/tr; sx=0; sy=0; }
-      g.save();
-      g.translate(px+pw/2,py+ph/2); g.rotate(-0.03); g.translate(-pw/2,-ph/2);
-      g.fillStyle="#fff"; roundRect(g,-8,-8,pw+16,ph+16,14); g.fill();
-      g.strokeStyle=C.ink; g.lineWidth=3; roundRect(g,-8,-8,pw+16,ph+16,14); g.stroke();
-      roundRect(g,0,0,pw,ph,10); g.clip();
-      g.drawImage(portrait,sx,sy,sw,sh,0,0,pw,ph);
-      g.restore();
-      // 右侧文字列
-      const tx=400;
-      g.textAlign="left";
-      g.font="100px serif"; g.fillText(e.emoji,tx,300);
-      g.fillStyle=endKey==="liushou"?C.cinnabar:endKey==="nandu"?C.stoneblue:endKey==="yuanman"?C.gamboge:C.ink;
-      g.font=`700 92px ${SERIF}`;
-      g.fillText(e.title,tx,420);
-      g.fillStyle=C.charcoal; g.font=`38px ${SERIF}`;
-      g.fillText(`议婚 ${st.day} 天`,tx,480);
-      g.fillStyle=C.faint; g.font=`26px ${SERIF}`;
-      g.fillText(e.rare,tx,524);
-      yCursor=570;
-    }else{
-      g.textAlign="center"; g.font="150px serif";
-      g.fillText(e.emoji,W/2,360);
-      g.fillStyle=endKey==="liushou"?C.cinnabar:endKey==="nandu"?C.stoneblue:endKey==="yuanman"?C.gamboge:C.ink;
-      g.font=`700 110px ${SERIF}`;
-      g.fillText(e.title,W/2,540);
-      g.fillStyle=C.charcoal; g.font=`40px ${SERIF}`;
-      g.fillText(`议婚 ${st.day} 天`,W/2,630);
-      g.fillStyle=C.faint; g.font=`28px ${SERIF}`;
-      g.fillText(e.rare,W/2,680);
-      yCursor=700;
-    }
-    // 五人合图横幅（cover 裁剪；无图或已有结局大图时跳过，版式自动收拢）
-    if(banner && !art){
-      const bx=100, bw=W-200, bh=220, by=yCursor;
-      const ir=banner.width/banner.height, tr=bw/bh;
-      let sw,sh,sx,sy;
-      if(ir>tr){ sh=banner.height; sw=sh*tr; sx=(banner.width-sw)/2; sy=0; }
-      else{ sw=banner.width; sh=sw/tr; sx=0; sy=(banner.height-sh)*0.25; }
-      g.save();
-      roundRect(g,bx,by,bw,bh,16); g.clip();
-      g.drawImage(banner,sx,sy,sw,sh,bx,by,bw,bh);
-      g.restore();
-      g.strokeStyle=C.wash; g.lineWidth=2;
-      roundRect(g,bx,by,bw,bh,16); g.stroke();
-      yCursor=by+bh+50;
-    }
-    // 钩子文案（居中，自动换行；感情线深入时追加专属句）
-    g.fillStyle=C.charcoal; g.font=`46px ${SERIF}`;
     const romance=(st.playerTags["感情"]||0)>=6;
-    wrapText(g,"「"+e.hook+(romance?ROMANCE_HOOK[endKey]:"")+"」",W/2,yCursor+40,W-260,72);
-    // 五维雷达图（嵌入分享卡；结局大图版式省略，避免压底部署名）
-    if(!art){
-      const rcv=document.createElement("canvas"); rcv.width=360; rcv.height=300;
-      this.drawRadar(rcv);
-      g.drawImage(rcv,W/2-270,yCursor+170,540,450);
-      yCursor+=640;
+    const hook="「"+e.hook+(romance?ROMANCE_HOOK[endKey]:"")+"」";
+    const img=art||portrait;
+    g.textAlign="center";
+    if(img){
+      // 大图满版铺底（cover，顶部对齐保人物面部）
+      const ir=img.width/img.height, tr=W/H;
+      let sw,sh,sx,sy;
+      if(ir>tr){ sh=img.height; sw=sh*tr; sx=(img.width-sw)/2; sy=0; }
+      else{ sw=img.width; sh=sw/tr; sx=0; sy=0; }
+      g.drawImage(img,sx,sy,sw,sh,0,0,W,H);
+      // 底部墨渐变文字区
+      const grad=g.createLinearGradient(0,H*0.40,0,H);
+      grad.addColorStop(0,"rgba(20,16,12,0)");
+      grad.addColorStop(0.55,"rgba(20,16,12,.72)");
+      grad.addColorStop(1,"rgba(20,16,12,.92)");
+      g.fillStyle=grad; g.fillRect(0,H*0.40,W,H*0.60);
+      // 压字：时序 → 结局名 → 稀有度 → 判词 → 落款
+      g.fillStyle=C.gamboge; g.font=`30px ${SERIF}`;
+      g.fillText(`建中靖国元年 · 春 · 议婚 ${st.day} 天`,W/2,H-478);
+      g.fillStyle=C.paper; g.font=`700 100px ${SERIF}`;
+      g.fillText(e.title,W/2,H-356);
+      g.fillStyle="rgba(250,248,245,.78)"; g.font=`28px ${SERIF}`;
+      g.fillText(e.rare,W/2,H-300);
+      g.fillStyle=C.paper; g.font=`42px ${SERIF}`;
+      wrapText(g,hook,W/2,H-236,W-220,66);
+      g.fillStyle="rgba(250,248,245,.6)"; g.font=`28px ${SERIF}`;
+      g.fillText("我在宋朝会出嫁吗 · 5 种身份 × 5 个维度",W/2,H-64);
+    }else{
+      // 无图兜底：纸本文字卡（正常流程不会走到这里）
+      g.fillStyle=C.paper; g.fillRect(0,0,W,H);
+      g.strokeStyle=C.ink; g.lineWidth=5; g.strokeRect(44,44,W-88,H-88);
+      g.strokeStyle=C.faint; g.lineWidth=2; g.strokeRect(58,58,W-116,H-116);
+      g.fillStyle=C.faint; g.font=`38px ${SERIF}`;
+      g.fillText("我在宋朝会出嫁吗",W/2,170);
+      g.font="150px serif"; g.fillText(e.emoji,W/2,440);
+      g.fillStyle=C.ink; g.font=`700 110px ${SERIF}`;
+      g.fillText(e.title,W/2,630);
+      g.fillStyle=C.charcoal; g.font=`40px ${SERIF}`;
+      g.fillText(`议婚 ${st.day} 天`,W/2,706);
+      g.fillStyle=C.faint; g.font=`28px ${SERIF}`;
+      g.fillText(e.rare,W/2,758);
+      g.fillStyle=C.charcoal; g.font=`46px ${SERIF}`;
+      wrapText(g,hook,W/2,880,W-260,76);
+      g.fillStyle=C.faint; g.font=`30px ${SERIF}`;
+      g.fillText("5 种身份 × 5 个维度，你是哪一种人生",W/2,H-110);
     }
-    // tags = 人格标签（维度前三）
-    const tags=this.persona();
-    g.font=`28px ${SERIF}`;
-    const tagY=yCursor+(art?170:150);
-    let tw=tags.reduce((s,t)=>s+g.measureText(t).width+70,0), tx=W/2-tw/2;
-    tags.forEach(t=>{
-      const w=g.measureText(t).width;
-      g.strokeStyle=C.stoneblue; g.lineWidth=2;
-      roundRect(g,tx,tagY,w+44,52,26); g.stroke();
-      g.fillStyle=C.stoneblue; g.fillText(t,tx+22+w/2,tagY+38);
-      tx+=w+70;
-    });
-    // 出处
-    g.fillStyle=C.faint; g.font=`26px ${SERIF}`; g.textAlign="left";
-    g.strokeStyle=C.wash; g.lineWidth=1; g.beginPath(); g.moveTo(100,H-260); g.lineTo(W-100,H-260); g.stroke();
-    wrapText(g,"📚 "+e.source,100,H-205,W-200,44,"left");
-    // 底部引流
-    g.fillStyle=C.ink; g.font=`32px ${SERIF}`;
-    g.textAlign="left"; g.fillText("5 种身份 × 5 个维度",100,H-120);
-    g.fillStyle=C.cinnabar; g.fillText("你的宋朝人生，会活成谁？",100,H-70);
     return cv;
 
-    function wrapText(g,text,x,y,maxW,lh,align="center"){
-      g.textAlign=align; let line="",yy=y;
+    function wrapText(g,text,x,y,maxW,lh){
+      let line="",yy=y;
       for(const ch of text){
-        if(g.measureText(line+ch).width>maxW){
-          g.fillText(line,align==="center"?x:x,yy); line=ch; yy+=lh;
-        }else line+=ch;
+        if(g.measureText(line+ch).width>maxW){ g.fillText(line,x,yy); line=ch; yy+=lh; }
+        else line+=ch;
       }
       if(line) g.fillText(line,x,yy);
-    }
-    function roundRect(g,x,y,w,h,r){
-      g.beginPath();
-      g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r);
-      g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath();
+      return yy;
     }
   },
+
 
   async share(){
     const miniTool = window.xhs && window.xhs.miniTool;
@@ -653,12 +553,11 @@ const Engine = {
     hint.textContent="正在生成结局卡……";
     try{
       const endKey=this.state.ended||"wuji";
-      const banner = await this.loadImage("assets/group.jpg").catch(()=>null);
       const portrait = await this.loadImage("assets/char-"+this.state.branch+".jpg").catch(()=>null);
       // 出嫁类结局才带结局大图（同域资源，Canvas 导出无跨域问题）
       const art = this.isMarryEnding(endKey)
         ? await this.loadImage("assets/end-"+this.state.branch+".jpg").catch(()=>null) : null;
-      const cv = this.drawEndCard(endKey, banner, portrait, art);
+      const cv = this.drawEndCard(endKey, portrait, art);
       const dataUrl = cv.toDataURL("image/png");
       if(miniTool){
         // 大图先落临时文件，再唤起发布页（文档 §3.5 推荐路径）

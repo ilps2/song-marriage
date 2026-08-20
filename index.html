@@ -107,8 +107,20 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
 @keyframes drop{0%{transform:scale(.2);opacity:0}40%{transform:scale(1.1);opacity:1}100%{transform:scale(1.6);opacity:0}}
 .notice{font-size:.82em;color:var(--faint);text-align:center;margin-top:10px}
 .hint{font-size:.75em;color:var(--faint);text-align:center;margin-top:8px}
-/* 结局卡顶部大图（出嫁类结局专属）：宽撑满卡面，竖版图顶部居中对齐 */
-.end-art{width:100%;aspect-ratio:4/4.6;object-fit:cover;object-position:top center;display:block;border-radius:10px;border:1.5px solid var(--ink);margin:0 auto 10px;background:var(--wash)}
+/* 结局主卡：大图满幅 + 底部墨渐变压字（海报式，与分享卡同版式） */
+.resultcard.end{padding:12px 12px 14px}
+.end-hero{position:relative;width:100%;aspect-ratio:4/4;border-radius:10px;overflow:hidden;border:1.5px solid var(--ink);background:var(--wash);margin-bottom:8px}
+.end-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+.end-hero-txt{
+  position:absolute;left:0;right:0;bottom:0;padding:46px 12px 12px;text-align:center;
+  background:linear-gradient(180deg,rgba(20,16,12,0) 0%,rgba(20,16,12,.72) 55%,rgba(20,16,12,.92) 100%);
+}
+.end-hero-txt .stag{color:var(--gamboge);letter-spacing:.25em;font-size:.72em;margin-bottom:2px}
+.end-hero-txt h2{color:var(--paper);font-size:1.3em;letter-spacing:.15em;margin-bottom:2px}
+.end-hero-txt .days{color:var(--gamboge);letter-spacing:.2em;font-size:.78em}
+.end-hero-txt .hook{color:var(--paper);margin:8px 0 0;font-size:.92em;line-height:1.7}
+/* 五维降级：一行小字汇总，置于判词下方 */
+.dimline{color:var(--faint);font-size:.72em;letter-spacing:.06em;margin:2px 0 4px;line-height:1.6}
 /* 里程碑印章卡：立绘大图为主体，印章角标与天数压图 */
 .stamp-art{position:relative;width:100%;aspect-ratio:4/4.9;margin:8px 0 10px;border-radius:10px;overflow:hidden;border:1.5px solid var(--wash);background:var(--wash)}
 .stamp-art img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
@@ -180,22 +192,25 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
   </section>
 
   <section class="screen" id="s-end">
-    <div class="resultcard" id="end-card">
-      <img id="end-art" class="end-art" style="display:none" alt="结局图">
-      <img id="end-portrait" style="width:30%;max-width:110px;border-radius:10px;border:2px solid var(--ink);transform:rotate(-2deg);margin:0 auto 8px;display:block" alt="角色立绘">
-      <div class="stag" id="end-stag" style="color:var(--gamboge);letter-spacing:.25em;font-size:.75em"></div>
-      <div class="big" id="end-emoji"></div>
-      <h2 id="end-title"></h2>
-      <div class="days" id="end-days"></div>
+    <div class="resultcard end" id="end-card">
+      <div class="end-hero">
+        <img id="end-art" style="display:none" alt="结局图">
+        <img id="end-portrait" alt="角色立绘">
+        <div class="end-hero-txt">
+          <div class="stag" id="end-stag"></div>
+          <h2 id="end-title"></h2>
+          <div class="days" id="end-days"></div>
+          <p class="hook" id="end-hook"></p>
+        </div>
+      </div>
       <div class="rare" id="end-rare"></div>
-      <p class="hook" id="end-hook"></p>
-      <canvas id="end-radar" width="360" height="300" style="width:46%;max-width:170px;margin:6px auto;display:block"></canvas>
+      <div class="dimline" id="end-dims"></div>
       <div class="tagsline" id="end-tags"></div>
       <div id="end-gallery" style="text-align:left;font-size:.8em;color:var(--charcoal)"></div>
       <p class="src" id="end-source" style="text-align:left"></p>
       <div class="foot">我在宋朝会出嫁吗 · 5 种身份 × 5 个维度，你是哪一种人生</div>
     </div>
-    <button class="btn primary" style="margin-top:16px" id="btn-share">生成结局卡 · 发笔记</button>
+    <button class="btn primary" style="margin-top:12px" id="btn-share">生成结局卡 · 发笔记</button>
     <button class="btn" id="btn-replay">再走一遍</button>
     <div class="hint" id="share-hint"></div>
   </section>
