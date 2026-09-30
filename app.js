@@ -45,7 +45,23 @@ const CONFIG = {
     D:{name:"🍵 茶坊掌柜", data:"EVENTS_D", char:"assets/char-D.jpg", role:"自己能挣钱"},
     E:{name:"🌾 乡间孤女", data:"EVENTS_E", char:"assets/char-E.jpg", role:"全靠自己"},
     F:{name:"💐 进士家小娘子", data:"EVENTS_F", char:"assets/char-F.jpg", role:"榜下捉婿 · 婚后相知", days:60, casual:true},
-    G:{name:"🍂 自立娘子", data:"EVENTS_G", char:"assets/char-G.jpg", role:"亲事自己做主 · 金石自立", days:60, casual:true}
+    G:{name:"🍂 自立娘子", data:"EVENTS_G", char:"assets/char-G.jpg", role:"亲事自己做主 · 金石自立", days:60, casual:true},
+    /* H / I 剧情支线（story 模式）：选项不判对错、不计风评，结局由玩家取舍决定 */
+    H:{name:"🌿 女郎中", data:"EVENTS_H", char:"assets/char-H.jpg", role:"药柜后面的手 · 救人要紧", days:30, story:true, art:false, era:"元符三年 · 汴京", dayLabel:"行医"},
+    I:{name:"💍 两家提亲", data:"EVENTS_I", char:"assets/char-I.jpg", role:"才华与性情，还是家世与安稳", days:20, story:true, art:false, era:"南宋 · 临安", dayLabel:"提亲"}
+  },
+  /* 剧情支线的专属里程碑印章（不填则沿用通用议婚季三枚） */
+  milestones:{
+    H:[
+      {day:6,  emoji:"🫀", title:"第一次自己诊脉", hook:"师傅把手搭在我的手背上：「再听一次。」那一声迟疑，我记了一辈子。", rare:"三十天里，你救下的人比你以为的多"},
+      {day:15, emoji:"🏮", title:"半夜被敲门", hook:"产妇家的灯亮到天明。你出来时天正落雨，衣角还带着血水。", rare:"敢在夜里出诊的人不多"},
+      {day:24, emoji:"📜", title:"街口开了张", hook:"巷子里的人开始喊你「娘子大夫」，不再喊「药铺那个丫头」。", rare:"名声是救出来，不是说出来"}
+    ],
+    I:[
+      {day:4,  emoji:"📜", title:"两封问候", hook:"两家的媒人先后登门。母亲把茶换成温的：「你自己想想。」", rare:"选择太多，和选择太少一样难"},
+      {day:11, emoji:"🏮", title:"两个人都见过了", hook:"一个谈未来，一个谈家底。夜里你把两句话翻来覆去，都没睡着。", rare:"见过了，才轮得到选择"},
+      {day:17, emoji:"🗓️", title:"不能再拖了", hook:"父亲说两家都在等回话。你心里那杆秤，还差最后一两。", rare:"决定之前的那一夜最难"}
+    ]
   },
   dims: ["才华","名声","家世","情缘","自主"],
   totalDays: 120,
@@ -143,11 +159,69 @@ const BRANCH_ENDINGS = {
   }
 };
 
+/* 剧情支线（H/I）专属结局表：不用通用六结局，结局文案 = 玩家的价值取向，不写“你选对了”。
+   value  → 结局页那行“你更看重 …”
+   tags   → 结局页价值取向小圆标
+   source → 统一的虚构声明（历史说明红线） */
+const STORY_ENDINGS = {
+  /* I 线《两家提亲》六结局：A/B 各两态 + 继续观察 + 拒绝两家 */
+  I:{
+    I_A1:{emoji:"🌸", title:"选择 · 共同面对", rare:"两家提亲 · 6 种结局之一",
+      hook:"你选择了一个前途未定的人，也接受了生活可能清苦的事实。你们的日子未必立刻安稳，但至少谈过如何共同面对。",
+      value:"你更看重：共同成长 · 你最在意：婚后能否共担",
+      tags:["共同成长","相处与尊重"], source:"人物与故事为虚构，婚俗背景参考宋代文献。"},
+    I_A2:{emoji:"📖", title:"选择 · 才华与温和", rare:"两家提亲 · 6 种结局之一",
+      hook:"你被他的才华与温和打动，但关于生计的问题仍没有答案。选择已经作出，未来要靠你们慢慢面对。",
+      value:"你更看重：相处与尊重 · 你最在意：前途不确定",
+      tags:["相处与尊重","前途不确定"], source:"人物与故事为虚构，婚俗背景参考宋代文献。"},
+    I_B1:{emoji:"🏮", title:"选择 · 家业与余地", rare:"两家提亲 · 6 种结局之一",
+      hook:"你看重陆家的保障，也看见陆怀安愿意开始承担自己的生活。家境给了你们余地，真正的日子仍要两个人一起经营。",
+      value:"你更看重：现实保障 · 也看重：他愿不愿意学",
+      tags:["现实保障","共同成长"], source:"人物与故事为虚构，婚俗背景参考宋代文献。"},
+    I_B2:{emoji:"🏡", title:"选择 · 稳妥与未知", rare:"两家提亲 · 6 种结局之一",
+      hook:"你选择了眼前更稳妥的家境，但也知道，富足不能替一个人承担责任。你希望婚后他能改变，能否做到仍是未知数。",
+      value:"你更看重：现实保障 · 你最在意：缺少担当",
+      tags:["现实保障","缺少担当"], source:"人物与故事为虚构，婚俗背景参考宋代文献。"},
+    I_C:{emoji:"🕯️", title:"缓一缓 · 继续观察", rare:"两家提亲 · 6 种结局之一",
+      hook:"你没有急着把一生交给一个尚未看清的人。两家都要等你的答复，家中也有压力，但你争取到了继续了解的时间。",
+      value:"你更看重：保留选择权 · 你最在意：看清之前别定",
+      tags:["保留选择权","家庭压力"], source:"人物与故事为虚构，婚俗背景参考宋代文献。"},
+    I_D:{emoji:"🚪", title:"都婉拒 · 我再想想", rare:"两家提亲 · 6 种结局之一",
+      hook:"你拒绝了两门看起来各有好处的婚事。这个决定未必轻松，也可能让家人担忧，但至少你没有为了尽快作出选择而忽略自己的判断。",
+      value:"你更看重：婚后自主 · 你最在意：不想将就",
+      tags:["婚后自主","保留选择权"], source:"人物与故事为虚构，婚俗背景参考宋代文献。"}
+  },
+  /* H 线《女郎中》四结局：医术 / 自立 / 未成 / 归家，按五维结算 */
+  H:{
+    H_shenxuan:{emoji:"🌿", title:"悬壶 · 女郎中", rare:"女郎中 · 4 种结局之一",
+      hook:"你成了这条街上人人知道的女郎中。敲门的人不问你是男是女，只问你在不在。",
+      value:"你更看重：凭本事说话 · 最在意：能不能救人",
+      tags:["医术","名声"], source:"人物与故事为虚构，医药背景参考宋代医事文献。"},
+    H_zili:{emoji:"🏮", title:"自立 · 自己的药柜", rare:"女郎中 · 4 种结局之一",
+      hook:"你离开了别人的药铺，赁下一间小门面。柜台不高，账自己记，药自己抓。",
+      value:"你更看重：自己做主 · 最在意：不看人眼色",
+      tags:["自主","医术"], source:"人物与故事为虚构，医药背景参考宋代医事文献。"},
+    H_weicheng:{emoji:"🌧️", title:"未成 · 手艺还在路上", rare:"女郎中 · 4 种结局之一",
+      hook:"三十天过去，你还不能独当一面。但你见过生死，也知道下一次该往哪里使劲。",
+      value:"你更看重：稳扎稳打 · 最在意：还没学成",
+      tags:["医术","保留余地"], source:"人物与故事为虚构，医药背景参考宋代医事文献。"},
+    H_guijia:{emoji:"🍂", title:"归家 · 收起药箱", rare:"女郎中 · 4 种结局之一",
+      hook:"家里替你说了门亲，药箱收进了箱底。你没争——或者，还没到能争的时候。",
+      value:"你更看重：家里安稳 · 最在意：先活下去",
+      tags:["现实保障","家庭压力"], source:"人物与故事为虚构，医药背景参考宋代医事文献。"}
+  }
+};
+
 /* 按线取结局文案：该线有专属 title/hook 则覆盖，其余字段兜底到通用表 */
 function endText(key, branch){
   const base=ENDINGS[key]||{};
   const b=(BRANCH_ENDINGS[branch]&&BRANCH_ENDINGS[branch][key])||{};
   return Object.assign({}, base, b);
+}
+/* 剧情支线的结局只存在于 STORY_ENDINGS，取不到时回到通用表（不会出现空结局页） */
+function storyEndText(key, branch){
+  const s=(STORY_ENDINGS[branch]&&STORY_ENDINGS[branch][key])||{};
+  return Object.assign({}, endText(key, branch), s);
 }
 
 const NOTE_PRESET = {
@@ -156,6 +230,13 @@ const NOTE_PRESET = {
   // 话题锚点语法：#话题名[话题]# 才会被发布页解析成可点击的真实话题
   tags: "#国风vibecoding[话题]# #小红书vibecoding大赛[话题]# #vibegame[话题]# #小红书小工具[话题]# #宋朝[话题]# #互动游戏[话题]#"
 };
+
+/* 剧情支线的分享文案（策划案给的讨论型钩子，不用“测出你是什么类型”的诊断腔） */
+const BRANCH_NOTE = {
+  I:"如果在宋朝，两家同时提亲：一位有才华但前途未定，一位家境优渥但不爱读书，你会怎么选？",
+  H:"在宋朝的汴京，一个女子想靠医术立住脚，要闯几关？我走了三十天。"
+};
+function noteHead(branch){ return BRANCH_NOTE[branch]||NOTE_PRESET.content; }
 
 /* 分享弹层（宋系列同款）：生成卡片 → 预览 → 保存相册 / 发笔记 */
 const ShareBox = {
@@ -505,6 +586,7 @@ const Engine = {
       this.state.events=events;
       if(!this.state._sideHist) this.state._sideHist=[];
       if(!this.state.stamps) this.state.stamps=[];
+      if(!this.state.flags) this.state.flags={};
       // 快照定格在"出错那道题之前"：渲染当前事件重新作答
       this.save();
       this.renderEvent();
@@ -529,7 +611,7 @@ const Engine = {
 
   blankState(){
     return {job:null,skills:[],style:null,branch:null,events:[],idx:0,day:1,
-            heresy:0,playerTags:{},playerDims:{},ended:null,_sideHist:[],stamps:[]};
+            heresy:0,playerTags:{},playerDims:{},flags:{},ended:null,_sideHist:[],stamps:[]};
   },
 
   /* ---------- 开局：数据从 window.EVENTS_X 读取，零网络 ---------- */
@@ -556,13 +638,20 @@ const Engine = {
 
   validate(events, branchKey){
     const ids=new Set(), checkpoints=new Set();
+    const story=!!(CONFIG.branches[branchKey]&&CONFIG.branches[branchKey].story);
     for(const ev of events){
-      if(!ev.id||!ev.scene||!Array.isArray(ev.options)||ev.options.length!==2)
-        throw new Error("事件结构不完整: "+(ev.id||"未知"));
+      // 剧情支线 2–5 个选项；其余线固定 2 选 1
+      const minO=2, maxO=story?5:2;
+      if(!ev.id||!ev.scene||!Array.isArray(ev.options)||
+         ev.options.length<minO||ev.options.length>maxO)
+        throw new Error("事件结构不完整(选项需 "+minO+"–"+maxO+" 个): "+(ev.id||"未知"));
       if(ids.has(ev.id)) throw new Error("事件 id 重复: "+ev.id);
       ids.add(ev.id);
       const corr=ev.options.filter(o=>o.correct);
-      if(ev.finale || ev.flavor){ // 终局/夜话：双正确，不判对错
+      if(story){
+        // 剧情支线不设标准答案：任何选项都不许标 correct
+        if(corr.length) throw new Error("剧情支线不得设置正确选项: "+ev.id);
+      }else if(ev.finale || ev.flavor){ // 终局/夜话：双正确，不判对错
         if(corr.length<1) throw new Error("终局/夜话事件至少1个正确选项: "+ev.id);
       }else if(corr.length!==1) throw new Error("每事件必须恰好1个正确选项: "+ev.id);
       if(ev.checkpoint) checkpoints.add(ev.checkpoint);
@@ -572,13 +661,43 @@ const Engine = {
       console.warn("⚠️ 考点重复率超 5%");
   },
 
-  /* 单线天数：F/G 古偶专线 60 天，老线 120 天 */
+  /* 单线天数：F/G 古偶专线 60 天，剧情支线按各自配置，老线 120 天 */
   lineDays(){ const st=this.state; return (st&&st.branch&&CONFIG.branches[st.branch].days)||CONFIG.totalDays; },
   /* 古偶专线（casual）：纯剧情体验，答错不累计风评、不会提前出局 */
   isCasual(){ const st=this.state; return !!(st&&st.branch&&CONFIG.branches[st.branch].casual); },
+  /* 剧情支线（story）：选项无对错，结局由取舍决定 */
+  isStory(){ const st=this.state; return !!(st&&st.branch&&CONFIG.branches[st.branch].story); },
+
+  /* 条件事件：event.when 决定这条事件在当前取舍下是否出现
+     支持 {flag} 真值 / {flag,eq|ne} 等值 / {flag,min|max} 计数区间 */
+  matchWhen(ev){
+    const w=ev&&ev.when; if(!w) return true;
+    const f=this.state.flags||{}, v=f[w.flag];
+    if(w.eq!==undefined) return v===w.eq;
+    if(w.ne!==undefined) return v!==w.ne;
+    if(w.min!==undefined) return (Number(v)||0)>=w.min;
+    if(w.max!==undefined) return (Number(v)||0)<=w.max;
+    return !!v;
+  },
+
+  /* 当前生效的里程碑（剧情支线各有一套） */
+  milestones(){ return (this.state&&CONFIG.milestones&&CONFIG.milestones[this.state.branch])||MILESTONES; },
+  /* 结局页 / 卡片上“议婚 N 天”的那个词：按线替换 */
+  dayLabel(){
+    const st=this.state;
+    const b=(st&&st.branch&&CONFIG.branches[st.branch])||{};
+    return b.dayLabel||"议婚";
+  },
+  eraLabel(){
+    const st=this.state;
+    const b=(st&&st.branch&&CONFIG.branches[st.branch])||{};
+    return b.era||"建中靖国元年 · 春";
+  },
 
   renderEvent(){
     const st=this.state;
+    // 条件事件：不满足 when 的直接跳过（剧情支线按玩家取舍分岔）
+    while(st.idx<st.events.length && !this.matchWhen(st.events[st.idx])) st.idx++;
     if(st.idx>=st.events.length || st.day>this.lineDays()){
       return this.end(this.routeEnding());
     }
@@ -587,7 +706,8 @@ const Engine = {
     document.getElementById("hud-day").textContent=`第 ${ev.day} 天 / ${this.lineDays()}`;
     document.getElementById("hud-shichen").textContent=ev.shichen||"";
     const hw=document.getElementById("hud-heresy-wrap");
-    if(this.isCasual()){ hw.innerHTML="🌸 古偶专线 · 剧情畅玩"; }
+    if(this.isStory()){ hw.innerHTML="📖 剧情线 · 选择没有对错"; }
+    else if(this.isCasual()){ hw.innerHTML="🌸 古偶专线 · 剧情畅玩"; }
     else{ hw.innerHTML=`风评 <b id="hud-heresy">${st.heresy}</b>/${CONFIG.heresyMax}`; }
     // 进度条 = 当天时辰进度（辰→未→戌 逐格推进），天数显示整体进度
     const dayTotal=st.events.reduce((n,e)=>n+(e.day===ev.day?1:0),0);
@@ -597,16 +717,19 @@ const Engine = {
     document.getElementById("ev-scene").textContent=ev.scene;
     document.getElementById("ev-feedback").innerHTML="";
 
-    let correctFirst = Math.random()<0.5;
-    const hist=st._sideHist;
-    const last2=hist.slice(-2);
-    if(last2.length===2 && last2[0]===last2[1]) correctFirst=!last2[0];
-    hist.push(correctFirst);
-
-    const opts=[...ev.options].sort((a,b)=>{
-      const ac=a.correct?1:0, bc=b.correct?1:0;
-      return correctFirst? bc-ac : ac-bc;
-    });
+    /* 剧情支线保持作者顺序（价值观选项打乱会破坏语义）；答题线仍按对错交替打乱 */
+    let opts=ev.options;
+    if(!this.isStory()){
+      let correctFirst = Math.random()<0.5;
+      const hist=st._sideHist;
+      const last2=hist.slice(-2);
+      if(last2.length===2 && last2[0]===last2[1]) correctFirst=!last2[0];
+      hist.push(correctFirst);
+      opts=[...ev.options].sort((a,b)=>{
+        const ac=a.correct?1:0, bc=b.correct?1:0;
+        return correctFirst? bc-ac : ac-bc;
+      });
+    }
 
     const box=document.getElementById("ev-opts");
     box.innerHTML="";
@@ -621,23 +744,30 @@ const Engine = {
 
   choose(ev,opt,btn,box){
     const st=this.state;
+    const story=this.isStory();
+    st.flags=st.flags||{};
     [...box.children].forEach(c=>c.disabled=true);
-    btn.classList.add(opt.correct?"good":"bad");
+    if(!story) btn.classList.add(opt.correct?"good":"bad");
 
     (opt.tags||[]).forEach(t=>{
-      st.playerTags[t]=(st.playerTags[t]||0)+(opt.correct?2:1);
+      st.playerTags[t]=(st.playerTags[t]||0)+((!story&&opt.correct)?2:1);
     });
     Object.entries(opt.dims||{}).forEach(([d,v])=>{
       if(CONFIG.dims.includes(d)) st.playerDims[d]=(st.playerDims[d]||0)+v;
     });
+    /* 剧情支线：选项写入取舍标记（flags 累计 / set 落定），结局按它判定 */
+    Object.entries(opt.flags||{}).forEach(([k,v])=>{
+      st.flags[k]=(Number(st.flags[k])||0)+Number(v||0);
+    });
+    if(opt.set && typeof opt.set==="object") Object.assign(st.flags, opt.set);
 
-    if(!opt.correct && !this.isCasual()){
+    if(!opt.correct && !story && !this.isCasual()){
       st.heresy++;
       const hh=document.getElementById("hud-heresy"); if(hh) hh.textContent=st.heresy;
     }
 
-    const fb=UI.el("div","feedback"+(opt.correct?"":" err"),
-      (opt.correct?"✅ ":"❌ ")+opt.feedback+
+    const fb=UI.el("div","feedback"+((!story&&!opt.correct)?" err":""),
+      (story?"":(opt.correct?"✅ ":"❌ "))+opt.feedback+
       (opt.source?`<div class="src">${opt.source}</div>`:""));
     document.getElementById("ev-feedback").appendChild(fb);
 
@@ -646,10 +776,10 @@ const Engine = {
     next.style.marginTop="12px";
     next.addEventListener("click",()=>{
       st.idx++; st.day=ev.day;
-      if(st.heresy>=CONFIG.heresyMax) return this.end("baolu");
+      if(!story && st.heresy>=CONFIG.heresyMax) return this.end("baolu");
       this.save();
       // 里程碑检测：非阻塞印章卡（越过节点当天即触发）
-      const hit=MILESTONES.find(m=>ev.day>=m.day && !st.stamps.includes(m.day) && m.day> (st._lastMilestoneDay||0));
+      const hit=this.milestones().find(m=>ev.day>=m.day && !st.stamps.includes(m.day) && m.day> (st._lastMilestoneDay||0));
       if(hit){ st._lastMilestoneDay=hit.day; this.save(); this.showStamp(hit); return; }
       this.renderEvent();
     });
@@ -660,6 +790,24 @@ const Engine = {
   routeEnding(){
     const st=this.state, d=st.playerDims;
     const g=k=>d[k]||0;
+    const f=st.flags||{};
+    /* I 线《两家提亲》：结局 = 最终决定 × 你挖出了多少真相（不显示数值）
+       digShen/digLu = 你在交谈里追问现实与担当的次数（阈值 5：问透了才算“谈过”） */
+    if(st.branch==="I"){
+      const pick=f.final;
+      if(pick==="refuse") return "I_D";
+      if(pick==="watch")  return "I_C";
+      if(pick==="shen")   return (Number(f.digShen)||0)>=5 ? "I_A1" : "I_A2";
+      if(pick==="lu")     return (Number(f.digLu)||0)>=5 ? "I_B1" : "I_B2";
+      return "I_C"; // 没走到终局决定（兜底）：继续观察
+    }
+    /* H 线《女郎中》：按五维结算（医术·口碑·自立） */
+    if(st.branch==="H"){
+      if(g("才华")>=16 && g("名声")>=12) return "H_shenxuan";
+      if(g("自主")>=14 && g("才华")>=10) return "H_zili";
+      if(g("家世")>=12 && g("自主")<12)  return "H_guijia";
+      return "H_weicheng";
+    }
     if(st.branch==="C" && g("情缘")>=20 && g("才华")>=20) return "liangyuan"; // 彩蛋线
     if(st.branch==="F" && g("情缘")>=22 && g("自主")>=8) return "liangyuan"; // 甜向：婚后相知修成
     if(st.branch==="G" && g("情缘")>=18 && g("自主")>=18) return "liangyuan"; // 爽向：自己挑的良人
@@ -676,15 +824,21 @@ const Engine = {
     return top.filter(x=>x[1]>0).map(x=>x[0]);
   },
 
-  /* 出嫁类结局（良缘/将就）才配结局大图 */
-  isMarryEnding(key){ return key==="liangyuan"||key==="jiangjiu"; },
+  /* 出嫁类结局（良缘/将就）才配结局大图；剧情支线（art:false）一律用立绘 */
+  isMarryEnding(key){
+    const st=this.state;
+    const b=(st&&st.branch&&CONFIG.branches[st.branch])||{};
+    if(b.art===false) return false;
+    return key==="liangyuan"||key==="jiangjiu";
+  },
 
   end(key){
     const st=this.state; st.ended=key; this.save();
+    const story=this.isStory();
     // 非「失名」的正常结局：该局走完了，清掉读档快照避免封面误导（失名结局保留，供读档复活）
     if(key!=="baolu"){ Store.del(CONFIG.slotKey); }
     if(key==="liangyuan" && st.branch==="C" && !st._actsDone){ st._actsDone=true; this.save(); return this.playActs(()=>this.end(key)); }
-    const e=endText(key, st.branch);
+    const e=story? storyEndText(key, st.branch) : endText(key, st.branch);
     UI.go("s-end");
     const art=document.getElementById("end-art");
     const portrait=document.getElementById("end-portrait");
@@ -700,21 +854,30 @@ const Engine = {
       portrait.style.display="block";
       portrait.src=CONFIG.branches[st.branch].char;
     }
-    document.getElementById("end-stag").textContent="建中靖国元年 · 春";
+    document.getElementById("end-stag").textContent=this.eraLabel();
     document.getElementById("end-title").textContent=e.title;
-    document.getElementById("end-days").textContent=`议婚 ${st.day} 天 · 你的人生活法`;
+    document.getElementById("end-days").textContent=
+      story ? `${this.dayLabel()} ${st.day} 天 · 你的取舍`
+            : `议婚 ${st.day} 天 · 你的人生活法`;
     document.getElementById("end-rare").textContent=e.rare;
     const romance=st.branch==="C"&&(st.playerTags["感情"]||0)>=6;
     const hookText="「"+e.hook+(romance?ROMANCE_HOOK[key]:"")+"」";
     document.getElementById("end-hook").textContent=hookText;
     document.getElementById("end-source").textContent=e.source;
     document.getElementById("share-hint").textContent="";
-    // 五维降级为一行小字汇总（雷达图已撤）
+    // 五维降级为一行小字汇总（雷达图已撤）；剧情支线改成“你更看重 …”的价值取向行
     const d=st.playerDims;
     document.getElementById("end-dims").textContent=
-      CONFIG.dims.map(k=>k+" "+(d[k]||0)).join(" · ");
+      (story && e.value) ? e.value
+        : CONFIG.dims.map(k=>k+" "+(d[k]||0)).join(" · ");
     const tl=document.getElementById("end-tags"); tl.innerHTML="";
-    this.persona().forEach(p=>tl.appendChild(UI.el("span","",p)));
+    const tags=(story && e.tags) ? e.tags : this.persona();
+    tags.forEach(p=>tl.appendChild(UI.el("span","",p)));
+    // 卡底落款：剧情支线不谈“五个维度”，谈取舍
+    const footEl=document.querySelector("#end-card .foot");
+    if(footEl) footEl.textContent = story
+      ? "我在宋朝会出嫁吗 · 剧情支线 · 选择没有对错，代价自己承担"
+      : "我在宋朝会出嫁吗 · 9 种身份 × 5 个维度，你是哪一种人生";
     // 失名结局（风评满2出局）特别提示：还有读档机会
     const hintBox=document.getElementById("end-retry");
     if(hintBox){
@@ -728,8 +891,7 @@ const Engine = {
         hintBox.style.display="none";
       }
     }
-    // 词句回收图鉴（彩蛋线结局后展示）
-    const gl=document.getElementById("end-gallery"); gl.innerHTML="";
+    // 词句回收图鉴（彩蛋线结局后展示）    const gl=document.getElementById("end-gallery"); gl.innerHTML="";
     if(key==="liangyuan"){
       const ys=st.events.filter(ev=>ev.yishou && st.events.indexOf(ev)<st.idx+1);
       if(ys.length){
@@ -799,7 +961,11 @@ const Engine = {
   /* 分享结局卡：3:4 海报式——大图满版铺底 + 底部墨渐变压字（结局名+判词+落款）。
      出嫁结局用婚嫁图，非出嫁结局用立绘；五维雷达图已撤出分享卡。 */
   drawEndCard(endKey, portrait, art){
-    const e=endText(endKey, this.state.branch), st=this.state;
+    const st=this.state, story=this.isStory();
+    const e=story? storyEndText(endKey, st.branch) : endText(endKey, st.branch);
+    const era=this.eraLabel(), dl=this.dayLabel();
+    const foot=story? "我在宋朝会出嫁吗 · 剧情支线 · 选择没有对错"
+                    : "我在宋朝会出嫁吗 · 9 种身份 × 5 个维度";
     const W=1080,H=1440,cv=document.createElement("canvas");
     cv.width=W; cv.height=H;
     const g=cv.getContext("2d");
@@ -824,7 +990,7 @@ const Engine = {
       g.fillStyle=grad; g.fillRect(0,H*0.40,W,H*0.60);
       // 压字：时序 → 结局名 → 稀有度 → 判词 → 落款
       g.fillStyle=C.gamboge; g.font=`30px ${SERIF}`;
-      g.fillText(`建中靖国元年 · 春 · 议婚 ${st.day} 天`,W/2,H-500);
+      g.fillText(`${era} · ${dl} ${st.day} 天`,W/2,H-500);
       g.fillStyle=C.paper; g.font=`700 96px ${SERIF}`;
       g.fillText(e.title,W/2,H-392);
       g.fillStyle="rgba(250,248,245,.78)"; g.font=`28px ${SERIF}`;
@@ -832,7 +998,7 @@ const Engine = {
       g.fillStyle=C.paper; g.font=`42px ${SERIF}`;
       wrapText(g,hook,W/2,H-212,W-220,66);
       g.fillStyle="rgba(250,248,245,.6)"; g.font=`28px ${SERIF}`;
-      g.fillText("我在宋朝会出嫁吗 · 7 种身份 × 5 个维度",W/2,H-64);
+      g.fillText(foot,W/2,H-64);
     }else{
       // 无图兜底：纸本文字卡（正常流程不会走到这里）
       g.fillStyle=C.paper; g.fillRect(0,0,W,H);
@@ -844,13 +1010,13 @@ const Engine = {
       g.fillStyle=C.ink; g.font=`700 110px ${SERIF}`;
       g.fillText(e.title,W/2,630);
       g.fillStyle=C.charcoal; g.font=`40px ${SERIF}`;
-      g.fillText(`议婚 ${st.day} 天`,W/2,706);
+      g.fillText(`${dl} ${st.day} 天`,W/2,706);
       g.fillStyle=C.faint; g.font=`28px ${SERIF}`;
       g.fillText(e.rare,W/2,758);
       g.fillStyle=C.charcoal; g.font=`46px ${SERIF}`;
       wrapText(g,hook,W/2,880,W-260,76);
       g.fillStyle=C.faint; g.font=`30px ${SERIF}`;
-      g.fillText("7 种身份 × 5 个维度，你是哪一种人生",W/2,H-110);
+      g.fillText(story?"剧情支线 · 你的取舍你承担":"9 种身份 × 5 个维度，你是哪一种人生",W/2,H-110);
     }
     return cv;
 
@@ -868,18 +1034,23 @@ const Engine = {
 
   /* 生成结局卡图片 + 笔记文案（share / previewCard 共用） */
   async buildEndCard(){
-    const endKey=this.state.ended||"wuji";
-    const e = endText(endKey, this.state.branch);
-    const portrait = await this.loadImage("assets/char-"+this.state.branch+".jpg").catch(()=>null);
+    const st=this.state, story=this.isStory();
+    const endKey=st.ended||"wuji";
+    const e = story? storyEndText(endKey, st.branch) : endText(endKey, st.branch);
+    const portrait = await this.loadImage("assets/char-"+st.branch+".jpg").catch(()=>null);
     // 出嫁类结局才带结局大图（同域资源，Canvas 导出无跨域问题）
     // 缺图快速回退：1.5s 超时 × 1 次重试，不让缺失资源拖死分享链路
     const art = this.isMarryEnding(endKey)
-      ? await this.loadImage("assets/end-"+this.state.branch+".jpg", 1500, 1).catch(()=>null) : null;
+      ? await this.loadImage("assets/end-"+st.branch+".jpg", 1500, 1).catch(()=>null) : null;
     const cv = this.drawEndCard(endKey, portrait, art);
     const dataUrl = cv.toDataURL("image/png");
+    // 剧情支线的分享文案 = 讨论型钩子（策划案给的那句），不写“测出你是什么类型”
+    const content = story
+      ? `${noteHead(st.branch)}\n\n我走到的结局是「${e.title}」：${e.hook||""}\n\n${e.value||""}\n\n你会怎么选？\n\n${NOTE_PRESET.tags}`
+      : `穿越回1101年的汴京议婚季，议婚 ${st.day} 天，我的结局是「${e.title}」。\n${e.hook||""}\n\n9种身份×5个维度，测测你会活成谁？\n\n${NOTE_PRESET.tags}`;
     return { dataUrl, note:{
       title: `我的宋朝结局：${e.title}`,
-      content: `穿越回1101年的汴京议婚季，议婚 ${this.state.day} 天，我的结局是「${e.title}」。\n${e.hook||""}\n\n7种身份×5个维度，测测你会活成谁？\n\n${NOTE_PRESET.tags}`,
+      content: content,
       tags: NOTE_PRESET.tags
     }};
   },
@@ -946,7 +1117,7 @@ const Engine = {
     document.getElementById("stamp-char").src=CONFIG.branches[st.branch].char;
     document.getElementById("stamp-seal").textContent=m.title;
     document.getElementById("stamp-title").textContent=m.emoji+" "+m.title;
-    document.getElementById("stamp-days").textContent=`议婚季 · 第 ${m.day} 天`;
+    document.getElementById("stamp-days").textContent=this.stampDayLabel(m);
     document.getElementById("stamp-hook").textContent="「"+m.hook+"」";
     document.getElementById("stamp-rare").textContent=m.rare;
     document.getElementById("stamp-hint").textContent="";
@@ -954,9 +1125,15 @@ const Engine = {
     UI.go("s-stamp");
   },
 
+  /* 印章卡上的“议婚季 · 第 N 天”，按线换词 */
+  stampDayLabel(m){
+    const dl=this.dayLabel();
+    return (dl==="议婚"||!dl) ? `议婚季 · 第 ${m.day} 天` : `${dl} · 第 ${m.day} 天`;
+  },
+
   /* 里程碑印章卡：立绘大图为视觉主体（约 60% 高度，顶部对齐），印章角标 + 天数压图 */
   drawStampCard(m, portrait){
-    const st=this.state;
+    const st=this.state, story=this.isStory();
     const W=900,H=1200,cv=document.createElement("canvas");
     cv.width=W; cv.height=H;
     const g=cv.getContext("2d");
@@ -998,7 +1175,7 @@ const Engine = {
     g.restore();
     // 底部文案：时序 → 里程碑名 → 判词（无书名号）→ 稀有度 → 落款
     g.fillStyle=C.gamboge; g.font=`34px ${SERIF}`;
-    g.fillText(`议婚季 · 第 ${m.day} 天`,W/2,H-420);
+    g.fillText(this.stampDayLabel(m),W/2,H-420);
     g.fillStyle=C.paper; g.font=`700 84px ${SERIF}`;
     g.fillText(m.emoji+" "+m.title,W/2,H-336);
     g.fillStyle="rgba(250,248,245,.92)"; g.font=`36px ${SERIF}`;
@@ -1011,7 +1188,7 @@ const Engine = {
     if(line) g.fillText(line,W/2,yy);
     g.fillStyle="rgba(250,248,245,.6)"; g.font=`26px ${SERIF}`;
     g.fillText(m.rare,W/2,yy+64);
-    g.fillText("7 种身份 × 5 个维度 · 你会活成谁",W/2,H-72);
+    g.fillText(story?"剧情支线 · 你的取舍你承担":"9 种身份 × 5 个维度 · 你会活成谁",W/2,H-72);
     return cv;
   },
 
@@ -1024,8 +1201,8 @@ const Engine = {
       const dataUrl=this.drawStampCard(m,portrait).toDataURL("image/png");
       hint.textContent="";
       ShareBox.open(dataUrl, {
-        title:`议婚第${m.day}天｜${m.title}`,
-        content:`穿越回1101年汴京议婚季的第 ${m.day} 天，我拿到了「${m.title}」。${m.hook} 你会怎么选？\n\n${NOTE_PRESET.tags}`,
+        title:`${this.dayLabel()}第${m.day}天｜${m.title}`,
+        content:`${this.eraLabel()}，${this.stampDayLabel(m)}，我拿到了「${m.title}」。${m.hook} 你会怎么选？\n\n${NOTE_PRESET.tags}`,
         tags:NOTE_PRESET.tags
       });
     }catch(err){
@@ -1038,8 +1215,9 @@ const Engine = {
     const st=this.state;
     const list=document.getElementById("stamps-list"); list.innerHTML="";
     const got=(st&&st.stamps)||[];
-    document.getElementById("stamps-count").textContent=got.length+"/"+(MILESTONES.length+1);
-    MILESTONES.forEach(m=>{
+    const ms=this.milestones();
+    document.getElementById("stamps-count").textContent=got.length+"/"+(ms.length+1);
+    ms.forEach(m=>{
       const has=got.includes(m.day);
       const b=UI.el("button","btn",
         `${has?m.emoji:"🔒"} ${m.title} · 第${m.day}天`+
@@ -1049,7 +1227,7 @@ const Engine = {
       list.appendChild(b);
     });
     if(st&&st.ended){
-      const e=endText(st.ended, st.branch);
+      const e=this.isStory()? storyEndText(st.ended, st.branch) : endText(st.ended, st.branch);
       const b=UI.el("button","btn",`${e.emoji} 结局「${e.title}」 <small style="color:var(--stoneblue)">点我分享</small>`);
       b.addEventListener("click",()=>{ UI.go("s-end"); });
       list.appendChild(b);
@@ -1064,6 +1242,7 @@ const Engine = {
       if(!this.state||!this.state.events||!this.state.events.length) throw 0;
       if(!this.state._sideHist) this.state._sideHist=[];
       if(!this.state.stamps) this.state.stamps=[];
+      if(!this.state.flags) this.state.flags={};
       if(this.state.ended){ this.end(this.state.ended); return; }
       this.renderEvent();
     }catch{ Store.del(CONFIG.saveKey); location.reload(); }
