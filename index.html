@@ -2,8 +2,9 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>我在宋朝会出嫁吗 · 大宋婚恋模拟器</title>
+<meta name="build" content="1.4.4">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>我在宋朝会出嫁吗 · 大宋人生模拟器</title>
 <link rel="icon" href="assets/icon.png">
 <!-- 小红书小工具规范：无内联脚本、无行内事件、无外部资源、纯离线自包含 -->
 <style>
@@ -13,7 +14,7 @@
   --wash:#E8E4DC;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{background:#E4DDCB}
+html{background:#E4DDCB;touch-action:none;overscroll-behavior:none}
 html,body{height:100%}
 body{
   /* 3:4 沉浸式：舞台外用同色系径向渐变无缝延伸，无白边 */
@@ -22,7 +23,7 @@ body{
   color:var(--ink);
   font-family:"Noto Serif SC","Songti SC",serif;
   font-size:clamp(15px,4.2vw,18px); line-height:1.75;
-  overflow:hidden;
+  overflow:hidden;touch-action:none;overscroll-behavior:none;
   display:flex;align-items:center;justify-content:center;
   min-height:100vh;min-height:100dvh;
 }
@@ -41,8 +42,8 @@ body{
 .screen{display:none;flex:1;min-height:0;flex-direction:column;justify-content:flex-start;justify-content:safe center;transform-origin:top center;animation:unroll .5s ease}
 .screen.active{display:flex}
 @keyframes unroll{from{clip-path:inset(0 0 100% 0);opacity:.3}to{clip-path:inset(0 0 0 0);opacity:1}}
-h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margin:1dvh 0 4px;font-weight:700}
-.sub{text-align:center;color:var(--faint);font-size:.85em;letter-spacing:.3em;margin-bottom:2.5dvh}
+h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margin:1vh 0 4px;font-weight:700}
+.sub{text-align:center;color:var(--faint);font-size:.85em;letter-spacing:.3em;margin-bottom:2.5vh}
 .seal{display:inline-block;border:2px solid var(--cinnabar);color:var(--cinnabar);padding:2px 8px;font-size:.75em;letter-spacing:.2em;transform:rotate(-3deg);align-self:center;margin-bottom:16px}
 .btn{
   display:block;width:100%;padding:12px 18px;margin:7px 0;
@@ -62,13 +63,14 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
   position:absolute;left:0;right:0;margin:0 auto;top:50%;
   height:94%;aspect-ratio:3/4;width:auto;max-width:86%;padding:0;overflow:hidden;
   border:1.5px solid var(--wash);border-radius:14px;background:var(--paper);
+  touch-action:none;-webkit-user-select:none;user-select:none;
   box-shadow:0 6px 22px rgba(60,50,40,.14);
   transform:translateY(-50%);
   transition:transform .38s cubic-bezier(.22,.9,.3,1),opacity .38s ease;
   will-change:transform;
 }
 #branch-deck.grabbing .deck-card{transition:none}
-.deck-card .char-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;display:block;pointer-events:none}
+.deck-card .char-img{touch-action:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;display:block;pointer-events:none}
 .deck-card .char-info{
   position:absolute;left:0;right:0;bottom:0;padding:26px 10px 10px;
   background:linear-gradient(180deg,rgba(250,248,245,0) 0%,rgba(250,248,245,.92) 38%,rgba(250,248,245,.98) 100%);
@@ -77,7 +79,17 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
 .deck-card .char-name{font-size:1.02em;font-weight:600;color:var(--ink);text-align:center;line-height:1.4}
 .deck-card .char-role{font-size:.72em;color:var(--faint);text-align:center;line-height:1.5}
 .deck-card.is-top .char-info{background:linear-gradient(180deg,rgba(250,248,245,0) 0%,rgba(250,248,245,.94) 40%,#FAF8F5 100%)}
-#deck-dots{display:flex;justify-content:center;gap:7px;padding:2px 0 6px}
+#deck-nav{display:flex;align-items:center;justify-content:center;gap:14px;padding:2px 0 6px}
+#deck-dots{display:flex;justify-content:center;gap:7px}
+.deck-arrow{
+  width:44px;height:44px;min-width:44px;border-radius:50%;padding:0;
+  border:1px solid var(--wash);background:transparent;color:var(--faint);
+  font-family:inherit;font-size:14px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s,color .2s;
+}
+.deck-arrow:active{background:var(--wash);color:var(--ink)}
+.deck-arrow:focus-visible{outline:2px solid var(--stoneblue);outline-offset:2px}
 #deck-dots i{width:6px;height:6px;border-radius:50%;background:var(--wash);transition:all .3s}
 #deck-dots i.on{background:var(--cinnabar);transform:scale(1.35)}
 .btn.opt{text-align:left;position:relative;transition:background .3s,border-color .3s}
@@ -103,7 +115,7 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
 .tagsline{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:12px 0}
 .tagsline span{border:1px solid var(--stoneblue);color:var(--stoneblue);border-radius:99px;padding:2px 10px;font-size:.75em}
 .foot{margin-top:14px;font-size:.72em;color:var(--faint);letter-spacing:.15em}
-.inkdrop{width:14px;height:14px;background:var(--ink);border-radius:50%;margin:30dvh auto 16px;animation:drop 1.2s ease infinite}
+.inkdrop{width:14px;height:14px;background:var(--ink);border-radius:50%;margin:30vh auto 16px;animation:drop 1.2s ease infinite}
 @keyframes drop{0%{transform:scale(.2);opacity:0}40%{transform:scale(1.1);opacity:1}100%{transform:scale(1.6);opacity:0}}
 .notice{font-size:.82em;color:var(--faint);text-align:center;margin-top:10px}
 .hint{font-size:.75em;color:var(--faint);text-align:center;margin-top:8px}
@@ -126,6 +138,15 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
 .stamp-art img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
 .stamp-art .stamp-seal{position:absolute;top:10px;right:10px;background:var(--cinnabar);color:var(--paper);padding:6px 8px;border-radius:6px;font-size:.8em;letter-spacing:.1em;writing-mode:vertical-rl;transform:rotate(3deg);box-shadow:0 2px 8px rgba(0,0,0,.2)}
 .stamp-art .stamp-day{position:absolute;left:0;right:0;bottom:0;padding:30px 10px 8px;background:linear-gradient(180deg,rgba(250,248,245,0),rgba(250,248,245,.95) 60%);color:var(--gamboge);letter-spacing:.2em;font-size:.8em;text-align:center}
+/* 分享预览弹层（宋系列同款：先看卡，再保存/发笔记） */
+.share-overlay{position:fixed;inset:0;background:rgba(20,18,15,.78);z-index:99;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:12px}
+.share-overlay.hidden{display:none}
+.share-overlay img{width:min(84vw,56vh);border-radius:12px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.share-overlay .ov-btns{display:flex;gap:12px}
+.share-overlay .btn{width:auto;margin:0;padding:11px 20px;font-size:.9em}
+.share-overlay .btn-post{background:var(--cinnabar);border-color:var(--cinnabar);color:var(--paper)}
+.share-overlay .hint{color:#E8E0CE;margin-top:0}
+.share-overlay .btn-close{background:transparent;border:1px solid rgba(232,224,206,.4);color:#E8E0CE;border-radius:99px;padding:9px 22px;font-size:.85em;font-family:inherit;cursor:pointer}
 </style>
 </head>
 <body>
@@ -134,17 +155,19 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
   <section class="screen active" id="s-cover">
     <span class="seal">元符三年 · 秋</span>
     <h1>我在宋朝<br>会出嫁吗</h1>
-    <p class="sub">大宋婚恋模拟器 · 5 种身份 × 120 天</p>
+    <p class="sub">大宋人生模拟器 · 7 种身份 · 古偶双专线</p>
     
     <p style="text-align:center;color:var(--charcoal);margin-bottom:12px">
-      元符三年，汴京。你及笄了。<br>媒人踏破门槛，高门盯着你的嫁妆，<br>
+      元符三年，汴京。你行了笄礼。<br>媒人踏破门槛，高门盯着你的嫁妆，<br>
       有情人隔着屏风——<br>
       嫁，还是不嫁？嫁谁？怎么嫁？
     </p>
-    <button class="btn primary" id="btn-start">开始议婚</button>
+    <button class="btn primary" id="btn-start" type="button">开始议婚</button>
+    <div id="cover-err" style="display:none;color:#B5544A;font-size:.8em;text-align:center;margin-top:8px"></div>
     <button class="btn" id="btn-resume" style="display:none">继续上次旅程</button>
+    <button class="btn" id="btn-load" style="display:none">🌸 换个人生</button>
     <button class="btn" id="btn-stamps" style="display:none">我的印记</button>
-    <div class="notice">5 种身份 · 120 天 · 你的人生结局由五个维度写成</div>
+    <div class="notice">7 种身份 · 新增古偶双专线 · 你的人生结局由五个维度写成</div>
   </section>
 
   <section class="screen" id="s-job">
@@ -169,10 +192,14 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
   <section class="screen" id="s-route">
     <div class="hud"><span>选择你的身份</span></div>
     <div class="scene" style="flex:0"><p>母亲问你：闺女，心里可有计较？</p>
-      <p style="text-align:center;color:var(--faint);font-size:.78em;letter-spacing:.2em">⌃ 上 下 滑 动 翻 牌 · 点 当 前 牌 选 定 ⌄</p>
+      <p style="text-align:center;color:var(--faint);font-size:.78em;letter-spacing:.2em">滑 动 翻 牌 · 点 当 前 牌 选 定 · 或 用 ▲▼</p>
     </div>
     <div id="branch-deck"></div>
-    <div id="deck-dots"></div>
+    <div id="deck-nav">
+      <button class="deck-arrow" id="deck-prev" type="button" aria-label="上一张身份">▲</button>
+      <div id="deck-dots"></div>
+      <button class="deck-arrow" id="deck-next" type="button" aria-label="下一张身份">▼</button>
+    </div>
     <button class="btn primary" id="btn-pick" style="flex:0;margin-top:2px">就选她了</button>
   </section>
 
@@ -180,7 +207,7 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
     <div class="hud">
       <span id="hud-day">第 1 天</span>
       <span id="hud-shichen"></span>
-      <span>风评 <b id="hud-heresy">0</b>/2</span>
+      <span id="hud-heresy-wrap">风评 <b id="hud-heresy">0</b>/3</span>
     </div>
     <div class="progress"><i id="hud-bar" style="width:0%"></i></div>
     <div class="scene">
@@ -206,14 +233,27 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
       <div class="rare" id="end-rare"></div>
       <div class="dimline" id="end-dims"></div>
       <div class="tagsline" id="end-tags"></div>
+      <div id="end-retry" class="hint" style="display:none;color:var(--stoneblue)"></div>
       <div id="end-gallery" style="text-align:left;font-size:.8em;color:var(--charcoal)"></div>
       <p class="src" id="end-source" style="text-align:left"></p>
-      <div class="foot">我在宋朝会出嫁吗 · 5 种身份 × 5 个维度，你是哪一种人生</div>
+      <div class="foot">我在宋朝会出嫁吗 · 7 种身份 × 5 个维度，你是哪一种人生</div>
     </div>
-    <button class="btn primary" style="margin-top:12px" id="btn-share">生成结局卡 · 发笔记</button>
-    <button class="btn" id="btn-replay">再走一遍</button>
+    <button class="btn primary" style="margin-top:12px" id="btn-share">发笔记炫耀 · 一键晒结局</button>
+    <button class="btn" id="btn-card">预览结局卡 · 存图</button>
+    <button class="btn" id="btn-replay">回到封面</button>
     <div class="hint" id="share-hint"></div>
   </section>
+
+  <!-- 分享预览弹层：结局卡/印章卡共用 -->
+  <div class="share-overlay hidden" id="share-overlay">
+    <img id="ov-card" alt="分享卡预览">
+    <div class="ov-btns">
+      <button class="btn primary" id="btn-ov-save">保存到相册</button>
+      <button class="btn primary btn-post" id="btn-ov-post">发笔记晒一晒</button>
+    </div>
+    <div class="hint" id="ov-hint"></div>
+    <button class="btn-close" id="btn-ov-close">关闭</button>
+  </div>
 
   <section class="screen" id="s-loading">
     <div class="inkdrop"></div>
@@ -230,7 +270,7 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
   <!-- 里程碑印章卡（非阻塞：不分享也能继续玩） -->
   <section class="screen" id="s-stamp">
     <div class="resultcard" id="stamp-card" style="padding:22px 18px">
-      <div class="stag" style="color:var(--gamboge);letter-spacing:.25em;font-size:.72em">大宋婚恋 · 里程碑</div>
+      <div class="stag" style="color:var(--gamboge);letter-spacing:.25em;font-size:.72em">大宋人生 · 里程碑</div>
       <div class="stamp-art">
         <img id="stamp-char" alt="角色立绘">
         <span class="stamp-seal" id="stamp-seal"></span>
@@ -255,12 +295,14 @@ h1{font-size:clamp(26px,7.5vw,34px);letter-spacing:.12em;text-align:center;margi
   </section>
 </div>
 
-<script src="./events-A.js?v=j2"></script>
-<script src="./events-B.js?v=j2"></script>
-<script src="./events-D.js?v=j2"></script>
-<script src="./events-E.js?v=j2"></script>
-<script src="./events-C.js?v=j2"></script>
-<script src="./app.js?v=j2"></script>
-<script src="./fit.js?v=1"></script>
+<script src="./events-A.js"></script>
+<script src="./events-B.js"></script>
+<script src="./events-D.js"></script>
+<script src="./events-E.js"></script>
+<script src="./events-C.js"></script>
+<script src="./events-F.js"></script>
+<script src="./events-G.js"></script>
+<script src="./app.js"></script>
+<script src="./fit.js"></script>
 </body>
 </html>
